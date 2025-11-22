@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const config = require('./configs/config');
 const warehouseRoutes = require('./modules/Warehouse/warehouse.routes');
+const productRoutes = require('./modules/Product/product.route');
 
 const app = express();
 
@@ -32,6 +33,8 @@ app.use(express.static(path.join(__dirname, '../', 'public')));
 // API Routes
 app.use('/api/v1', router);
 app.use('/api/v1/warehouse', warehouseRoutes);
+app.use('/api/v1/product', productRoutes);
+
 
 // 404 Middleware
 app.use((req, _res, next) => {
