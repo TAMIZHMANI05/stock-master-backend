@@ -1,6 +1,6 @@
-const config = require('../configs/config')
-const EApplicationEnvironment = require('../constants/application')
-const logger = require('./logger')
+const config = require('../configs/config');
+const EApplicationEnvironment = require('../constants/application');
+const logger = require('./logger');
 
 module.exports = (req, res, statusCode, message, data) => {
     const response = {
@@ -13,15 +13,15 @@ module.exports = (req, res, statusCode, message, data) => {
         },
         message,
         data
-    }
+    };
 
     // Log
-    logger.info(`CONTROLLER_RESPONSE`, { meta: response })
+    logger.info(`CONTROLLER_RESPONSE`, { meta: response });
 
     //Production check
     if (config.ENV === EApplicationEnvironment.PRODUCTION) {
-        delete response.request.ip
+        delete response.request.ip;
     }
 
-    res.status(statusCode).json(response)
-}
+    res.status(statusCode).json(response);
+};

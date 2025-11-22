@@ -1,6 +1,6 @@
-const dotenvFlow = require('dotenv-flow')
+const dotenvFlow = require('dotenv-flow');
 
-dotenvFlow.config()
+dotenvFlow.config();
 
 module.exports = {
     ENV: process.env.ENV,
@@ -8,4 +8,4 @@ module.exports = {
     SERVER_URL: process.env.SERVER_URL,
     DATABASE_URL: process.env.DATABASE_URL,
     CLIENT_URL: process.env.CLIENT_URL
-}
+};
