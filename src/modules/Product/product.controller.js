@@ -1,15 +1,16 @@
-const Product = require("./product.model"); // Fixed path
+const Product = require("./product.model");
 const { v4: uuidv4 } = require("uuid");
 const httpResponse = require("../../utils/httpResponse");
+const httpError = require("../../utils/httpError");
 
-const createProduct = async (req, res) => {
+const createProduct = async (req, res, next) => {
   try {
     const { name, sku, category_id, uom } = req.body;
 
     // Check if product with same SKU already exists
     const existingProduct = await Product.findOne({ sku });
     if (existingProduct) {
-      return httpResponse(req, res, 400, "SKU already exists", null);
+       httpResponse(req, res, 400, "SKU already exists", null);
     }
 
     // Create new product
@@ -22,47 +23,38 @@ const createProduct = async (req, res) => {
     });
 
     await newProduct.save();
-    return httpResponse(req, res, 201, "Product created successfully", newProduct);
+    httpResponse(req, res, 201, "Product created successfully", newProduct);
   } catch (error) {
-    console.error("Error creating product:", error);
-    return httpResponse(req, res, 500, "Internal server error", null);
+    httpError(next, error, req, 500);
   }
 };
 
-const getAllProducts = async (req, res) => {
+const getAllProducts = async (req, res, next) => {
   try {
     const products = await Product.find();
-    return httpResponse(req, res, 200, "Products retrieved successfully", products);
+    httpResponse(req, res, 200, "Products retrieved successfully", products);
   } catch (error) {
-    console.error("Error fetching products:", error);
-    return httpResponse(req, res, 500, "Internal server error", null);
+    httpError(next, error, req, 500);
   }
 };
 
-const getProductById = async (req, res) => {
+const getProductById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const product = await Product.findOne({ id });
 
     if (!product) {
-      console.error(`Get product failed: No product found with id ${id}`);
-      return httpResponse(req, res, 404, "Product not found", null);
+       httpResponse(req, res, 404, "Product not found", null);
     }
 
-    console.log(`Product retrieved successfully: ${id}`);
-    return httpResponse(req, res, 200, "Product retrieved successfully", product);
+    httpResponse(req, res, 200, "Product retrieved successfully", product);
   } catch (error) {
-    console.error("Error fetching product:", {
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString()
-    });
-    return httpResponse(req, res, 500, "Error fetching product", null);
+    httpError(next, error, req, 500);
   }
 };
 
-const updateProduct = async (req, res) => {
+const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, sku, category_id, uom } = req.body;
@@ -70,7 +62,7 @@ const updateProduct = async (req, res) => {
     // Check if another product with same SKU exists (excluding current product)
     const existingProduct = await Product.findOne({ sku, id: { $ne: id } });
     if (existingProduct) {
-      return httpResponse(req, res, 400, "SKU already exists", null);
+       httpResponse(req, res, 400, "SKU already exists", null);
     }
 
     const product = await Product.findOneAndUpdate(
@@ -86,66 +78,53 @@ const updateProduct = async (req, res) => {
     );
 
     if (!product) {
-      console.error(`Update product failed: No product found with id ${id}`);
-      return httpResponse(req, res, 404, "Product not found", null);
+       httpResponse(req, res, 404, "Product not found", null);
     }
 
-    console.log(`Product updated successfully: ${id}`);
-    return httpResponse(req, res, 200, "Product updated successfully", product);
+    httpResponse(req, res, 200, "Product updated successfully", product);
   } catch (error) {
-    console.error("Error updating product:", error);
-    return httpResponse(req, res, 500, "Internal server error", null);
+    httpError(next, error, req, 500);
   }
 };
 
-const deleteProduct = async (req, res) => {
+const deleteProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const product = await Product.findOne({ id });
     if (!product) {
-      console.error(`Delete product failed: No product found with id ${id}`);
-      return httpResponse(req, res, 404, "Product not found", null);
+       httpResponse(req, res, 404, "Product not found", null);
     }
 
     await Product.findOneAndDelete({ id });
-
-    console.log(`Product deleted successfully: ${id}`);
-    return httpResponse(req, res, 200, "Product deleted successfully", null);
+    httpResponse(req, res, 200, "Product deleted successfully", null);
   } catch (error) {
-    console.error("Error deleting product:", {
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString()
-    });
-    return httpResponse(req, res, 500, "Error deleting product", null);
+    httpError(next, error, req, 500);
   }
 };
 
-const getProductsByCategory = async (req, res) => {
+const getProductsByCategory = async (req, res, next) => {
   try {
     const { category_id } = req.params;
 
     const products = await Product.find({ category_id });
 
     if (products.length === 0) {
-      return httpResponse(req, res, 200, "No products found for this category", []);
+       httpResponse(req, res, 200, "No products found for this category", []);
     }
 
-    console.log(`Found ${products.length} products for category ${category_id}`);
-    return httpResponse(req, res, 200, "Products retrieved successfully", products);
+    httpResponse(req, res, 200, "Products retrieved successfully", products);
   } catch (error) {
-    console.error("Error fetching products by category:", error);
-    return httpResponse(req, res, 500, "Internal server error", null);
+    httpError(next, error, req, 500);
   }
 };
 
-const searchProducts = async (req, res) => {
+const searchProducts = async (req, res, next) => {
   try {
     const { query } = req.query;
 
     if (!query) {
-      return httpResponse(req, res, 400, "Search query is required", null);
+       httpResponse(req, res, 400, "Search query is required", null);
     }
 
     const products = await Product.find({
@@ -155,10 +134,9 @@ const searchProducts = async (req, res) => {
       ]
     });
 
-    return httpResponse(req, res, 200, "Search results retrieved successfully", products);
+    httpResponse(req, res, 200, "Search results retrieved successfully", products);
   } catch (error) {
-    console.error("Error searching products:", error);
-    return httpResponse(req, res, 500, "Internal server error", null);
+    httpError(next, error, req, 500);
   }
 };
 
