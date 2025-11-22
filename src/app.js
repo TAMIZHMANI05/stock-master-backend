@@ -7,6 +7,7 @@ const httpError = require('./utils/httpError');
 const helmet = require('helmet');
 const cors = require('cors');
 const config = require('./configs/config');
+const warehouseRoutes = require('./modules/Warehouse/warehouse.routes');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(express.static(path.join(__dirname, '../', 'public')));
 
 // API Routes
 app.use('/api/v1', router);
+app.use('/api/v1/warehouse', warehouseRoutes);
 
 // 404 Middleware
 app.use((req, _res, next) => {
